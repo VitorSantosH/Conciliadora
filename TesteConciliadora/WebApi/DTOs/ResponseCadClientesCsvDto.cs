@@ -1,3 +1,3 @@
 namespace TesteConciliadora.WebApi.DTOs;
 
-public record ResponseCadClientesCsvDto( List<CsvClienteDto> ListaRetorno, int TotalCadastrado , int TotalErros);
+public record ResponseCadClientesCsvDto( int TotalCadastrado , int TotalErros, List<CsvClienteDto> ListaRetorno);

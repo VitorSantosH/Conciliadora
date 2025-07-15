@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using TesteConciliadora.Domain.Models;
 using TesteConciliadora.Infrastructure.Repositories;
 using TesteConciliadora.WebApi.DTOs;
+using TesteConciliadora.WebApi.Factory;
 using TesteConciliadora.WebApi.Utils;
 
 namespace TesteConciliadora.WebApi.Controllers;
@@ -29,7 +30,6 @@ public class UploadCsvController : ControllerBase
     {
         try
         {
-
             if (file is null || file.Length == 0)
             {
                 return BadRequest("Arquivo inválido");
@@ -52,39 +52,31 @@ public class UploadCsvController : ControllerBase
             {
                 try
                 {
-                    //regex telefone 
-                    if (!TelefoneHelper.IsValid(registro.Telefone) || String.IsNullOrEmpty(registro.Nome))
+                    var retornoFactory =
+                        await   ClienteFactory.CriarSeValido(_clienteRepo, registro.Nome, registro.Telefone);
+
+                    if (retornoFactory.erro is not null)
                     {
                         msgRetorno.Add(new CsvClienteDto(null, false,
-                            $"Erro ao salvar cliente '{registro.Nome} - {registro.Telefone}' no banco de dados, dados invalidos "));
+                            $"Erro ao salvar cliente '{registro.Nome} - {registro.Telefone}' no banco de dados, exception: {retornoFactory.erro}"));
                         totalErros++;
                     }
                     else
                     {
-                        var novoCliente = new Cliente(registro.Nome, registro.Telefone) { };
-                        var clienteCadastrado = await _clienteRepo.AddReturnAsync(novoCliente);
-
-                        if (clienteCadastrado is null)
-                        {
-                            msgRetorno.Add(new CsvClienteDto(novoCliente, false,
-                                $"Erro ao salvar cliente '{registro.Nome} - {registro.Telefone}' no banco de dados."));
-                            totalErros++;
-                        }
-                        else
-                        {
-                            msgRetorno.Add(new CsvClienteDto(clienteCadastrado, true,
-                                $"Cliente '{clienteCadastrado.Nome}' cadastrado com sucesso. ID: {clienteCadastrado.Id}."));
-                            totalCadastrado++;
-                        }
+                        msgRetorno.Add(new CsvClienteDto(retornoFactory.cliente, true,
+                            $"Cliente '{retornoFactory.cliente?.Nome}' cadastrado com sucesso. ID: {retornoFactory.cliente?.Id}."));
+                        totalCadastrado++;
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
+                    msgRetorno.Add(new CsvClienteDto(null, false, e.Message));
+                    totalErros++;
                 }
             }
 
-            return Ok(new ResponseCadClientesCsvDto(msgRetorno, totalCadastrado, totalErros));
+            return Ok(new ResponseCadClientesCsvDto(totalCadastrado, totalErros, msgRetorno));
         }
         catch (Exception e)
         {
@@ -92,5 +84,4 @@ public class UploadCsvController : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
 }

@@ -15,6 +15,8 @@ public class Cliente
 
     public string Telefone { get; set; }
 
+    public bool Ativo { get; set; } = true;
+
     public ICollection<Veiculo> Veiculos { get; set; } = new List<Veiculo>();
 
     public Mensalista? Mensalista { get; set; }  // Associação opcional

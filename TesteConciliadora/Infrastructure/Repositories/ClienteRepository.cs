@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TesteConciliadora.Domain.Models;
 using TesteConciliadora.Infrastructure.Data;
@@ -55,4 +56,19 @@ public class ClienteRepository
     {
         return await _context.Clientes.AnyAsync(c => c.Id == id);
     }
+    
+    public List<Cliente?> Where(Expression<Func<Cliente, bool>> condicao)
+    {
+        try
+        {
+            var ret = _context.Set<Cliente>().Where(condicao).ToList();
+            return ret;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            return null;
+        }
+    }
+
 }

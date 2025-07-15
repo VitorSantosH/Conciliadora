@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using TesteConciliadora.Domain.Models;
 using TesteConciliadora.Infrastructure.Data;
 using TesteConciliadora.Infrastructure.Repositories;
+using TesteConciliadora.WebApi.DTOs;
+using TesteConciliadora.WebApi.Factory;
 
 namespace TesteConciliadora.WebApi.Controllers;
 
@@ -18,9 +20,18 @@ public class ClientesController(ClienteRepository clienteRepository) : Controlle
     }
 
     [HttpPost]
-    public async Task<ActionResult<Cliente>> Post(Cliente cliente)
+    public async Task<ActionResult<Cliente>> Post(ClienteCsv cliente)
     {
-        await clienteRepository.AddAsync(cliente);
-        return CreatedAtAction(nameof(Get), new { id = cliente.Id }, cliente);
+        var (clienteSalvo, erro) =
+            await  ClienteFactory.CriarSeValido(clienteRepository, cliente.Nome, cliente.Telefone);
+
+        if (erro is not null)
+        {
+            return Problem(erro);
+        }
+        else
+        {
+            return CreatedAtAction(nameof(Post), new { id = clienteSalvo.Id }, clienteSalvo);
+        }
     }
 }
