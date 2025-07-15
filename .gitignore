@@ -1,0 +1,65 @@
+######################
+# Build / bin / obj
+######################
+bin/
+obj/
+out/
+*.log
+
+######################
+# User-specific files
+######################
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+######################
+# Rider
+######################
+.idea/
+*.sln.iml
+
+######################
+# VS Code
+######################
+.vscode/
+
+######################
+# Dotnet tools / temp
+######################
+*.vs/
+*.DS_Store
+*.dbmdl
+*.pidb
+*.pdb
+*.mdb
+*.cache
+*.zip
+*.tmp
+*.bak
+
+######################
+# EF Core Migrations metadata
+######################
+Migrations/     # ❗Remova se quiser versionar as migrations
+*.sqlite
+
+######################
+# Test Results
+######################
+TestResults/
+coverage/
+
+######################
+# dotenv / config secrets
+######################
+.env
+.env.*
+appsettings.Development.json
+secrets.json
+
+######################
+# Nuke Build
+######################
+.temp/
