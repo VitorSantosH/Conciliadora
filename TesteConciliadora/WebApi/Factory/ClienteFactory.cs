@@ -18,11 +18,11 @@ public class ClienteFactory
             return (null, $"Telefone '{telefone}' inválido.");
 
 
-        var TelefoneJaCadastrado = clienteRepo.Where(c
+        var telefoneJaCadastrado = clienteRepo.Where(c
             => c.Ativo
                && c.Telefone.Trim() == telefone.Trim()).FirstOrDefault();
 
-        if (TelefoneJaCadastrado is not null)
+        if (telefoneJaCadastrado is not null)
             return (null, $"Telefone '{telefone}' ja cadastrado em outro cliente ativo.");
 
         var clienteCadastrado = await clienteRepo
