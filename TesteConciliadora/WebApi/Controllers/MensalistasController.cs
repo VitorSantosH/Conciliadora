@@ -57,4 +57,26 @@ public class MensalistasController(MensalistaRepository mensalistaRepository, Cl
 
         return CreatedAtAction(nameof(GetByClienteId), new { clienteId = mensalista.ClienteId }, mensalistaCadastrado);
     }
+    
+    [HttpPost("update")]
+    public async Task<ActionResult> Post([FromBody] Mensalista mensalista)
+    {
+        try
+        {
+            var entidadeAtualizada = await mensalistaRepository.UpdateReturnAsync(mensalista);
+
+            if (entidadeAtualizada == null)
+            {
+                return Problem("Erro ao atualizar o registro do mensalista.");
+            }
+
+            return Ok(entidadeAtualizada);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Problem($"Erro interno ao processar a requisição: {ex.Message}");
+        }
+    }
+
 }

@@ -55,4 +55,20 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
             return null;
         }
     }
+    
+    public async Task<T?> UpdateReturnAsync(T entity)
+    {
+        try
+        {
+            _dbSet.Update(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao atualizar: {ex.Message}");
+            return null;
+        }
+    }
+
 }
