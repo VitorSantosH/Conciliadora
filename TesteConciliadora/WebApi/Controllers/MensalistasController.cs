@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using TesteConciliadora.Domain.Models;
 using TesteConciliadora.Infrastructure.Repositories;
+using TesteConciliadora.WebApi.DTOs;
 
 namespace TesteConciliadora.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MensalistasController(MensalistaRepository mensalistaRepository) : ControllerBase
+public class MensalistasController(MensalistaRepository mensalistaRepository, ClienteRepository clienteRepository)
+    : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Mensalista>>> Get()
@@ -26,13 +28,33 @@ public class MensalistasController(MensalistaRepository mensalistaRepository) : 
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post([FromBody] Mensalista mensalista)
+    public async Task<ActionResult> Post([FromBody] MensalistaDto mensalista)
     {
-        var existe = await mensalistaRepository.ExistsForClienteAsync(mensalista.ClienteId);
-        if (existe)
+        var cliente = await clienteRepository.getClienteMensalista(mensalista.ClienteId);
+
+        if (cliente == null)
+        {
+            return NotFound("Cliente não encontrado");
+        }
+
+        if (cliente?.Mensalista != null)
             return Conflict("Este cliente já é mensalista.");
 
-        await mensalistaRepository.AddAsync(mensalista);
-        return CreatedAtAction(nameof(GetByClienteId), new { clienteId = mensalista.ClienteId }, mensalista);
+        var novoMensalista = new Mensalista()
+        {
+            ClienteId = mensalista.ClienteId,
+            ValorMensal = mensalista.ValorMensal,
+            DataInicio = DateTime.UtcNow
+        };
+
+
+        var mensalistaCadastrado = await mensalistaRepository.AddReturnAsync(novoMensalista);
+
+        if (mensalistaCadastrado == null)
+        {
+            return Problem("Erro ao cadastrar");
+        }
+
+        return CreatedAtAction(nameof(GetByClienteId), new { clienteId = mensalista.ClienteId }, mensalistaCadastrado);
     }
 }

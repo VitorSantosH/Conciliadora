@@ -15,7 +15,7 @@ public class ClientesController(ClienteRepository clienteRepository) : Controlle
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Cliente>>> Get()
     {
-        var clientes = await clienteRepository.GetAllAsync();
+        var clientes = await clienteRepository.GetAlLEntidadeCompletaAsync();
         return Ok(clientes);
     }
 

@@ -34,4 +34,25 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         return await _dbSet.Where(predicate).ToListAsync();
     }
+    
+    public virtual async Task<T?> FirstOrDefault(Expression<Func<T, bool>> predicate)
+    {
+        return (await _dbSet.Where(predicate).ToListAsync()).FirstOrDefault();
+    }
+
+    
+    public async Task<T?> AddReturnAsync(T entity)
+    {
+        try
+        {
+            await _dbSet.AddAsync(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao salvar: {ex.Message}");
+            return null;
+        }
+    }
 }

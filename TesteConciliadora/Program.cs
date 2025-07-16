@@ -29,6 +29,13 @@ public class Program
         builder.Services.AddScoped<VeiculoRepository>();
         builder.Services.AddScoped<MensalistaRepository>();
 
+        // // referencia circular 
+        // builder.Services.AddControllers()
+        //     .AddJsonOptions(options =>
+        //     {
+        //         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        //     });
+        
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.

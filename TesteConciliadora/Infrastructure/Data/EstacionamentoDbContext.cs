@@ -28,5 +28,13 @@ public class EstacionamentoDbContext : DbContext
         modelBuilder.Entity<Veiculo>()
             .HasIndex(v => v.Placa)
             .IsUnique(); 
+        
+        modelBuilder.Entity<Cliente>()
+            .Property(c => c.Ativo)
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<Veiculo>()
+            .Property(v => v.Ativo)
+            .HasDefaultValue(true);
     }
 }

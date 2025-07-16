@@ -14,20 +14,28 @@ public class ClienteRepository : GenericRepository<Cliente>
     {
         _context = context;
     }
-    
-    public async Task<Cliente?> AddReturnAsync(Cliente cliente)
+
+
+    public async Task<Cliente?> getCLientePorTelefone(string telefone)
     {
-        try
-        {
-            _context.Clientes.Add(cliente);
-            await _context.SaveChangesAsync();
-            return cliente;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erro ao salvar cliente: {ex.Message}");
-            return null;
-        }
+        return await _context.Clientes
+            .FirstOrDefaultAsync(c => c.Telefone == telefone);
+    }
+    
+    public async Task<Cliente?> getClienteMensalista(int  id)
+    {
+        return await _context.Clientes
+            .Include(c => c.Mensalista)
+            .FirstOrDefaultAsync(c => c.Id == id);
+
+    }
+    
+    public async Task<List<Cliente>> GetAlLEntidadeCompletaAsync()
+    {
+        return await _context.Clientes
+            .Include(c => c.Veiculos)
+            .Include(c => c.Mensalista)
+            .ToListAsync();
     }
 
 }

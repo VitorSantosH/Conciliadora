@@ -5,11 +5,11 @@ using TesteConciliadora.Infrastructure.Data;
 namespace TesteConciliadora.Infrastructure.Repositories;
 
 
-public class MensalistaRepository
+public class MensalistaRepository  : GenericRepository<Mensalista>
 {
     private readonly EstacionamentoDbContext _context;
 
-    public MensalistaRepository(EstacionamentoDbContext context)
+    public MensalistaRepository(EstacionamentoDbContext context) : base(context)
     {
         _context = context;
     }
@@ -35,9 +35,5 @@ public class MensalistaRepository
         _context.Mensalistas.Add(mensalista);
         await _context.SaveChangesAsync();
     }
-
-    public async Task<bool> ExistsForClienteAsync(int clienteId)
-    {
-        return await _context.Mensalistas.AnyAsync(m => m.ClienteId == clienteId);
-    }
+    
 }

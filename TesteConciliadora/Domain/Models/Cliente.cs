@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TesteConciliadora.Domain.Models;
 
 public class Cliente

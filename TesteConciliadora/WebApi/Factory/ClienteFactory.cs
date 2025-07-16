@@ -4,7 +4,7 @@ using TesteConciliadora.WebApi.Utils;
 
 namespace TesteConciliadora.WebApi.Factory;
 
-public class ClienteFactory
+public static class ClienteFactory
 {
     public static async Task<(Cliente? cliente, string? erro)> CriarSeValido(
         ClienteRepository clienteRepo,

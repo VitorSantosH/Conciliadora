@@ -1,12 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 using TesteConciliadora.Domain.Models;
 using TesteConciliadora.Infrastructure.Repositories;
+using TesteConciliadora.WebApi.DTOs;
+using TesteConciliadora.WebApi.Factory;
 
 namespace TesteConciliadora.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class VeiculosController(VeiculoRepository veiculoRepository) : ControllerBase
+public class VeiculosController(ClienteRepository _clienteRepo, VeiculoRepository veiculoRepository) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Veiculo>>> Get()
@@ -23,9 +25,32 @@ public class VeiculosController(VeiculoRepository veiculoRepository) : Controlle
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post([FromBody] Veiculo veiculo)
+    public async Task<ActionResult> Post([FromBody] VeiculoCsv veiculoCsv)
     {
-        await veiculoRepository.AddAsync(veiculo);
-        return CreatedAtAction(nameof(Get), new { id = veiculo.Id }, veiculo);
+        Cliente? cliente = null;
+
+        if (veiculoCsv.ClienteId is not null && veiculoCsv.ClienteId > 0)
+        {
+            cliente = await _clienteRepo.GetByIdAsync((int)veiculoCsv.ClienteId);
+        }
+        else if (!String.IsNullOrEmpty(veiculoCsv.ClienteTelefone))
+        {
+            cliente = await _clienteRepo.getCLientePorTelefone(veiculoCsv.ClienteTelefone.Trim());
+        }
+
+        if (cliente is null)
+        {
+            return Problem(
+                $"Erro ao salvar veiculo placa '{veiculoCsv.Placa}' no banco de dados, exception: cliente não encontrado");
+        }
+
+        var (veiculoCadastrado, erro) = await VeiculoFactory.CriarSeValido(veiculoRepository, veiculoCsv, cliente);
+
+        if (erro != null)
+        {
+            return Problem(erro);
+        }
+
+        return CreatedAtAction(nameof(Get), new { id = veiculoCadastrado?.Id }, veiculoCadastrado);
     }
 }

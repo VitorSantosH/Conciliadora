@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TesteConciliadora.Domain.Models;
 
 public class Mensalista
@@ -5,6 +7,8 @@ public class Mensalista
     public int Id { get; set; } 
 
     public int ClienteId { get; set; }
+    
+    [JsonIgnore]
     public Cliente Cliente { get; set; }
     public decimal ValorMensal { get; set; }
 

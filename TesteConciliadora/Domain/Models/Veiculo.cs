@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TesteConciliadora.Domain.Models;
 
 public class Veiculo
@@ -10,5 +12,8 @@ public class Veiculo
 
     public int ClienteId { get; set; }
     
+    [JsonIgnore]
     public Cliente Cliente { get; set; }
+
+    public bool Ativo { get; set; } = true; 
 }

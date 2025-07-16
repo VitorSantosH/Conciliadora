@@ -26,7 +26,7 @@ public class UploadCsvController : ControllerBase
     }
 
     [HttpPost("clientes")]
-    public async Task<IActionResult> UploadCLientes(IFormFile? file)
+    public async Task<IActionResult> UploadClientes(IFormFile? file)
     {
         try
         {
@@ -43,7 +43,7 @@ public class UploadCsvController : ControllerBase
             });
 
             var registros = csv.GetRecords<ClienteCsv>();
-            var msgRetorno = new List<CsvClienteDto>();
+            var msgRetorno = new List<CadastroCLienteDtl>();
             var totalCadastrado = 0;
             var totalErros = 0;
 
@@ -53,17 +53,17 @@ public class UploadCsvController : ControllerBase
                 try
                 {
                     var retornoFactory =
-                        await   ClienteFactory.CriarSeValido(_clienteRepo, registro.Nome, registro.Telefone);
+                        await ClienteFactory.CriarSeValido(_clienteRepo, registro.Nome, registro.Telefone);
 
                     if (retornoFactory.erro is not null)
                     {
-                        msgRetorno.Add(new CsvClienteDto(null, false,
+                        msgRetorno.Add(new CadastroCLienteDtl(null, false,
                             $"Erro ao salvar cliente '{registro.Nome} - {registro.Telefone}' no banco de dados, exception: {retornoFactory.erro}"));
                         totalErros++;
                     }
                     else
                     {
-                        msgRetorno.Add(new CsvClienteDto(retornoFactory.cliente, true,
+                        msgRetorno.Add(new CadastroCLienteDtl(retornoFactory.cliente, true,
                             $"Cliente '{retornoFactory.cliente?.Nome}' cadastrado com sucesso. ID: {retornoFactory.cliente?.Id}."));
                         totalCadastrado++;
                     }
@@ -71,12 +71,90 @@ public class UploadCsvController : ControllerBase
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    msgRetorno.Add(new CsvClienteDto(null, false, e.Message));
+                    msgRetorno.Add(new CadastroCLienteDtl(null, false, e.Message));
                     totalErros++;
                 }
             }
 
             return Ok(new ResponseCadClientesCsvDto(totalCadastrado, totalErros, msgRetorno));
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPost("veiculos")]
+    public async Task<IActionResult> UploadCsv(IFormFile? file)
+    {
+        try
+        {
+            if (file is null || file.Length == 0)
+            {
+                return BadRequest("Arquivo inválido");
+            }
+
+            using var reader = new StreamReader(file.OpenReadStream());
+            using var csv = new CsvReader(reader, new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                HasHeaderRecord = true,
+                Delimiter = ","
+            });
+
+            var registros = csv.GetRecords<VeiculoCsv>();
+            var msgRetorno = new List<CadastroVeiculoDtl>();
+            var totalCadastrado = 0;
+            var totalErros = 0;
+
+
+            foreach (var registro in registros)
+            {
+                try
+                {
+                    Cliente? cliente = null;
+
+                    if (registro.ClienteId is not null && registro.ClienteId > 0)
+                    {
+                        cliente = await _clienteRepo.GetByIdAsync((int)registro.ClienteId);
+                    }
+                    else if (!String.IsNullOrEmpty(registro.ClienteTelefone))
+                    {
+                        cliente = await _clienteRepo.getCLientePorTelefone(registro.ClienteTelefone.Trim());
+                    }
+
+                    if (cliente is null)
+                    {
+                        msgRetorno.Add(new CadastroVeiculoDtl(null, false,
+                            $"Erro ao salvar veiculo placa '{registro.Placa}' no banco de dados, exception: cliente não encontrado"));
+                        totalErros++;
+                    }
+
+                    var retornoFactory =
+                        await VeiculoFactory.CriarSeValido(_veiculoRepo, registro, cliente);
+
+                    if (retornoFactory.erro is not null)
+                    {
+                        msgRetorno.Add(new CadastroVeiculoDtl(null, false,
+                            $"Erro ao salvar veiculo '{registro.Placa}' no banco de dados, exception: {retornoFactory.erro}"));
+                        totalErros++;
+                    }
+                    else
+                    {
+                        msgRetorno.Add(new CadastroVeiculoDtl(retornoFactory.veiculo, true,
+                            $"Veiculo '{retornoFactory.veiculo?.Placa}' cadastrado com sucesso. ID: {retornoFactory.veiculo?.Id}."));
+                        totalCadastrado++;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    msgRetorno.Add(new CadastroVeiculoDtl(null, false, e.Message));
+                    totalErros++;
+                }
+            }
+
+            return Ok(new ResponseCadVeiculosCsvDto(totalCadastrado, totalErros, msgRetorno));
         }
         catch (Exception e)
         {
