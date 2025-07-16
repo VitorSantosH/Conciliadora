@@ -59,7 +59,7 @@ public class MensalistasController(MensalistaRepository mensalistaRepository, Cl
     }
     
     [HttpPost("update")]
-    public async Task<ActionResult> Post([FromBody] Mensalista mensalista)
+    public async Task<ActionResult> Update([FromBody] Mensalista mensalista)
     {
         try
         {

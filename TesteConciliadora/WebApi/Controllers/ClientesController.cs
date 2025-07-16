@@ -34,4 +34,26 @@ public class ClientesController(ClienteRepository clienteRepository) : Controlle
             return CreatedAtAction(nameof(Post), new { id = clienteSalvo.Id }, clienteSalvo);
         }
     }
+    
+    [HttpPost("update")]
+    public async Task<ActionResult> Update([FromBody] Cliente cliente)
+    {
+        try
+        {
+            var entidadeAtualizada = await clienteRepository.UpdateReturnAsync(cliente);
+
+            if (entidadeAtualizada == null)
+            {
+                return Problem("Erro ao atualizar o registro do cliente.");
+            }
+
+            return Ok(entidadeAtualizada);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            return Problem($"Erro interno ao processar a requisição: {ex.Message}");
+        }
+    }
+
 }
