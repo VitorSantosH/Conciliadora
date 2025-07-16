@@ -1,40 +1,86 @@
-Conciliadora - Sistema de Estacionamento
-Sistema backend desenvolvido em .NET 8 com PostgreSQL e Entity Framework Core para gestão de estacionamento.
+Conciliadora – Sistema de Gestão de Estacionamento
+Sistema simples para controle de clientes, veículos, mensalistas, faturamento e vagas de estacionamento.
 
-Funcionalidades
-Cadastro de clientes (nome, telefone)
+⚙️ Tecnologias e Arquitetura
+.NET 8 + ASP.NET Core: Base do backend e APIs REST.
 
-Cadastro de veículos (modelo, placa)
+PostgreSQL: Banco de dados relacional escolhido pela robustez e compatibilidade com EF Core.
 
-Associação de múltiplos veículos a um cliente
+Entity Framework Core: ORM escolhido por integração nativa com o .NET e facilidade na criação de migrations.
 
-Controle de mensalistas
+Clean-ish architecture: Separação entre camadas de domínio, infraestrutura e WebApi.
 
-Geração simulada de faturas mensais
+DTOs: Criação de objetos de transporte para evitar vazamento de entidades.
 
-Upload de CSV para cadastro em massa de veículos
+Swagger (Swashbuckle): Documentação automática da API, acessível via /api-docs.
 
-Tecnologias
-ASP.NET Core 8
+PM2 + Nginx (produção): Gerenciamento de processo e proxy reverso para publicação Linux.
 
-Entity Framework Core
+📁 Estrutura
+Domain: Entidades de domínio (Cliente, Veiculo, Mensalista, Vaga, etc).
 
-PostgreSQL
+Infrastructure: Repositórios, contexto do banco (DbContext) e configurações de EF Core.
 
-Swagger
+WebApi: Controllers, DTOs e configuração do pipeline da aplicação.
 
-Execução
+Migrations: Geração e controle de versões do banco via EF Core.
+
+💡 Decisões Técnicas
+Relacionamentos entre entidades modelados com EF Core (1:N, 1:1).
+
+Campos como Ativo padronizados com valor default true via .HasDefaultValue(true).
+
+Utilização de Include para carregamento explícito de dados relacionados.
+
+Evitada a referência circular no JSON usando [JsonIgnore].
+
+Controle básico de erros com try/catch e return Problem(...) nos controllers.
+
+Upload via CSV implementado para facilitar cadastros em massa de clientes e veículos.
+
+API pensada para ser RESTful, com métodos claros e bem definidos (GET, POST, PUT, etc).
+
+🚀 Como rodar localmente
+Pré-requisitos: .NET 8 SDK, PostgreSQL, Visual Studio/Rider/VSCode
+
+Clonar o projeto
+
+bash
+Copy
+Edit
+git clone https://github.com/VitorSantosH/Conciliadora.git
+cd Conciliadora
+Configurar conexão
+Edite appsettings.json com a string de conexão do PostgreSQL:
+
+json
+Copy
+Edit
+"ConnectionStrings": {
+  "Default": "Host=localhost;Port=5432;Database=ConciliadoraDb;Username=postgres;Password=12345"
+}
+Executar as migrations
+
+bash
+Copy
+Edit
 dotnet ef database update
-dotnet run
+Rodar a aplicação
 
-Upload CSV - Exemplo
-Placa,Modelo,Cliente
-ABC1234,Onix,João Silva
-XYZ9876,Corolla,Ana Souza
+bash
+Copy
+Edit
+dotnet run --project TesteConciliadora
+Acessar Swagger
+http://localhost:5000/api-docs
 
-Decisões Técnicas
-Entity Framework Core para ORM
+📌 Observações
+Sistema aceita criação e gerenciamento de mensalistas com simulação de faturamento.
 
-API RESTful com Controllers
+Repositórios utilizam GenericRepository para padronizar operações básicas.
 
-Upload CSV via StreamReader
+🌐 Ambiente de Teste
+Subi o projeto em um servidor próprio para facilitar os testes e validação da API:
+
+🔗 https://testeconciliadora.vitorwebdev.com.br/api-docs/index.html
+
