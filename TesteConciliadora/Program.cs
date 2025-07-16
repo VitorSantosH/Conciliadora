@@ -23,6 +23,8 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+        
+        
 
         // repositorios 
         builder.Services.AddScoped<ClienteRepository>();
@@ -42,9 +44,12 @@ public class Program
         if (true) // ativado para facilitar o teste  => app.Environment.IsDevelopment()
         {
             app.UseSwagger();
-            app.UseSwaggerUI();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Conciliadora API");
+                c.RoutePrefix = "api-docs";
+            });
         }
-
 
         app.UseHttpsRedirection();
 
