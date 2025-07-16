@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using TesteConciliadora.Domain.Models;
 using TesteConciliadora.Infrastructure.Repositories;
@@ -43,7 +44,7 @@ public class MensalistasController(MensalistaRepository mensalistaRepository, Cl
         var novoMensalista = new Mensalista()
         {
             ClienteId = mensalista.ClienteId,
-            ValorMensal = mensalista.ValorMensal,
+            ValorMensal = Decimal.Parse(mensalista.ValorMensal),
             DataInicio = DateTime.UtcNow
         };
 
@@ -57,20 +58,34 @@ public class MensalistasController(MensalistaRepository mensalistaRepository, Cl
 
         return CreatedAtAction(nameof(GetByClienteId), new { clienteId = mensalista.ClienteId }, mensalistaCadastrado);
     }
-    
+
     [HttpPost("update")]
-    public async Task<ActionResult> Update([FromBody] Mensalista mensalista)
+    public async Task<ActionResult> Update([FromBody] MensalistaDto mensalistaDto)
     {
         try
         {
-            var entidadeAtualizada = await mensalistaRepository.UpdateReturnAsync(mensalista);
+            var mensalista = await mensalistaRepository.GetByClienteIdAsync(mensalistaDto.ClienteId);
 
-            if (entidadeAtualizada == null)
+            if (mensalista != null)
             {
-                return Problem("Erro ao atualizar o registro do mensalista.");
+                mensalista.Ativo = mensalistaDto.ativo;
+                
+                if (!decimal.TryParse(mensalistaDto.ValorMensal, NumberStyles.Any, CultureInfo.InvariantCulture, out var valor))
+                    return BadRequest("ValorMensal inválido.");
+
+                mensalista.ValorMensal = valor;
+
+                var entidadeAtualizada = await mensalistaRepository.UpdateReturnAsync(mensalista);
+
+                if (entidadeAtualizada == null)
+                {
+                    return Problem("Erro ao atualizar o registro do mensalista.");
+                }
+
+                return Ok(entidadeAtualizada);
             }
 
-            return Ok(entidadeAtualizada);
+            return NotFound();
         }
         catch (Exception ex)
         {
@@ -78,5 +93,4 @@ public class MensalistasController(MensalistaRepository mensalistaRepository, Cl
             return Problem($"Erro interno ao processar a requisição: {ex.Message}");
         }
     }
-
 }

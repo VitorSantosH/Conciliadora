@@ -11,6 +11,9 @@ public class EstacionamentoDbContext : DbContext
     public DbSet<Cliente> Clientes { get; set; }
     public DbSet<Veiculo> Veiculos { get; set; }
     public DbSet<Mensalista> Mensalistas { get; set; }
+    
+    public DbSet<Vaga> Vagas { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

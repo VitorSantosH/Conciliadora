@@ -30,6 +30,8 @@ public class Program
         builder.Services.AddScoped<ClienteRepository>();
         builder.Services.AddScoped<VeiculoRepository>();
         builder.Services.AddScoped<MensalistaRepository>();
+        builder.Services.AddScoped<VagaRepository>();
+
 
         // // referencia circular 
         // builder.Services.AddControllers()

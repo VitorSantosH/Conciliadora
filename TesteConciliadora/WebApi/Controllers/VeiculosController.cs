@@ -53,23 +53,21 @@ public class VeiculosController(ClienteRepository _clienteRepo, VeiculoRepositor
 
         return CreatedAtAction(nameof(Get), new { id = veiculoCadastrado?.Id }, veiculoCadastrado);
     }
-    
-    
+
+
     [HttpPost("update")]
-    public async Task<ActionResult> Update([FromBody] VeiculoCsv veiculoCsv)
+    public async Task<ActionResult> Update([FromBody] Veiculo veiculo)
     {
         try
         {
-            // var entidadeAtualizada = await veiculoRepository.UpdateReturnAsync(veiculoCsv);
-            //
-            // if (entidadeAtualizada == null)
-            // {
-            //     return Problem("Erro ao atualizar o registro do mensalista.");
-            // }
-            //
-            // return Ok(entidadeAtualizada);
+            var entidadeAtualizada = await veiculoRepository.UpdateVariaveisPermitidas(veiculo);
 
-            return Ok();
+            if (entidadeAtualizada == null)
+            {
+                return Problem("Erro ao atualizar o registro do mensalista.");
+            }
+
+            return Ok(entidadeAtualizada);
         }
         catch (Exception ex)
         {
@@ -77,6 +75,4 @@ public class VeiculosController(ClienteRepository _clienteRepo, VeiculoRepositor
             return Problem($"Erro interno ao processar a requisição: {ex.Message}");
         }
     }
-
-    
 }
